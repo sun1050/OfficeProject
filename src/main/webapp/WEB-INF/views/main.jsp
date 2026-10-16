@@ -13,7 +13,7 @@
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/common.css?ver=2">
 
     <!--헤더, 메뉴 등 레이아웃-->
-    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/layout.css?ver=2">
+    <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/layout.css?ver=3">
 
     <!--메인 화면에서만 사용-->
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/main.css?ver=2">
