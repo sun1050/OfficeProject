@@ -1,0 +1,98 @@
+@charset "UTF-8";
+
+/*
+    auth.css
+    역할:
+    로그인과 회원가입 화면에 공통 적용할 스타일이다.
+*/
+
+.auth-page {
+    min-height: calc(100vh - 134px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 16px;
+}
+
+.auth-card {
+    width: 100%;
+    max-width: 420px;
+    padding: 36px;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 14px;
+}
+
+.auth-card h1 {
+    margin: 0 0 10px;
+    text-align: center;
+    font-size: 27px;
+}
+
+.auth-description {
+    margin: 0 0 28px;
+    text-align: center;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.form-group {
+    margin-bottom: 18px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 15px;
+}
+
+.form-group input:focus {
+    outline: none;
+    border-color: #2563eb;
+}
+
+.auth-submit {
+    width: 100%;
+    margin-top: 8px;
+}
+
+.auth-link {
+    margin-top: 22px;
+    text-align: center;
+    color: #6b7280;
+    font-size: 14px;
+}
+
+.auth-link a {
+    color: #2563eb;
+    font-weight: 700;
+}
+
+.form-error {
+    margin: 0 0 18px;
+    padding: 12px;
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    background-color: #fef2f2;
+    color: #b91c1c;
+    font-size: 14px;
+}
+
+.form-success {
+    margin: 0 0 18px;
+    padding: 12px;
+    border: 1px solid #bbf7d0;
+    border-radius: 8px;
+    background-color: #f0fdf4;
+    color: #15803d;
+    font-size: 14px;
+}

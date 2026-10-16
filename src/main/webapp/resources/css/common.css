@@ -1,0 +1,55 @@
+@charset "UTF-8";
+
+/*
+    common.css
+    역할:
+    모든 화면에 공통으로 적용할 기본 규칙을 관리한다.
+    글꼴, 배경색, 링크, 공통 버튼처럼 여러 JSP가 공유하는 스타일을 둔다.
+*/
+
+* {
+    box-sizing: border-box;
+}
+
+html {
+    min-height: 100%;
+}
+
+body {
+    min-height: 100dvh;
+    margin: 0;
+    display: flex;
+    flex-direction: column;
+    font-family: "Malgun Gothic", Arial, sans-serif;
+    background-color: #f5f7fb;
+    color: #1f2937;
+}
+
+main {
+    flex: 1 0 auto;
+}
+
+a {
+    color: inherit;
+    text-decoration: none;
+}
+
+.button {
+    display: inline-block;
+    padding: 13px 22px;
+    border: 0;
+    border-radius: 8px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.button-primary {
+    background-color: #2563eb;
+    color: #ffffff;
+}
+
+.button-white {
+    background-color: #ffffff;
+    color: #2563eb;
+}

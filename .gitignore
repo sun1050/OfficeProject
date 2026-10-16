@@ -1,0 +1,35 @@
+# Java / build outputs
+/build/
+/bin/
+/target/
+*.class
+*.war
+*.ear
+
+# Local credentials and environment files
+.env
+.env.*
+!.env.example
+*.local.properties
+*.launch
+*.jks
+*.keystore
+*.p12
+*.pem
+*.key
+
+# IDE workspace / personal settings (shared Eclipse project files are kept)
+.metadata/
+.idea/
+.vscode/
+*.iml
+
+# Logs, temporary files and local database backups
+*.log
+*.tmp
+*.bak
+*.mdf
+*.ndf
+*.ldf
+Thumbs.db
+.DS_Store

@@ -1,0 +1,99 @@
+@charset "UTF-8";
+
+/*
+    main.css
+    역할:
+    main.jsp에만 필요한 메인 배너, 현황 카드, 안내 영역의 스타일을 담당한다.
+*/
+
+.main-home {
+    flex: 1 0 auto;
+    display: flex;
+}
+
+.main-home .hero {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.main-home .hero-inner {
+    width: 100%;
+}
+
+.hero {
+    background: linear-gradient(135deg, #1d4ed8, #2563eb);
+    color: #ffffff;
+}
+
+.hero-inner {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 70px 24px;
+}
+
+.hero h1 {
+    margin: 0 0 14px;
+    font-size: 36px;
+}
+
+.hero p {
+    margin: 0 0 28px;
+    font-size: 17px;
+    opacity: 0.9;
+}
+
+.section-title {
+    margin: 0 0 20px;
+    font-size: 23px;
+}
+
+.summary-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+}
+
+.summary-card {
+    padding: 24px;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+}
+
+.summary-card p {
+    margin: 0 0 10px;
+    color: #6b7280;
+}
+
+.summary-card strong {
+    color: #1d4ed8;
+    font-size: 30px;
+}
+
+.info-box {
+    margin-top: 28px;
+    padding: 22px;
+    background-color: #ffffff;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+}
+
+.info-box h3 {
+    margin-top: 0;
+}
+
+/*모바일-현황 카드 한 줄에 하나씩 보이게*/
+@media (max-width: 700px) {
+    .hero-inner {
+        padding: 55px 16px;
+    }
+
+    .hero h1 {
+        font-size: 29px;
+    }
+
+    .summary-grid {
+        grid-template-columns: 1fr;
+    }
+}
