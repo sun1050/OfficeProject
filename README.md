@@ -181,7 +181,6 @@ INCLUDE(member_id, room_id, is_canceled);
 - 동일한 데이터·SQL·검색 조건에서 추가 인덱스 적용 전후 비교
 - SQL별 준비 실행 2회 후 15회 측정한 중앙값 사용
 - `SET STATISTICS IO`, `SET STATISTICS TIME`, 실제 실행 계획 확인
-- 전체 테이블 및 조회 결과의 SHA256을 비교해 데이터·결과 동일성 검증
 
 테스트 데이터는 확대 실험용이며, 실제 단일 지점의 운영 규모를 의미하지 않습니다.
 
