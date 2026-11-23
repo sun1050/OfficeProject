@@ -38,10 +38,11 @@ public class AdminAuthorizationFilter extends HttpFilter implements Filter {
 
         //일반 회원이 관리자 URL 접근
         Object loginMemberRole = session.getAttribute("loginMemberRole");
-
         if (!"ADMIN".equals(loginMemberRole)) {
+        	//SC_FORBIDDEN: 숫자 403을 뜻하는 상수 “요청한 기능에 접근할 권한이 없습니다.
             httpResponse.setStatus(HttpServletResponse.SC_FORBIDDEN);
 
+            //별도 Servlet 클래스 없음
             httpRequest.getRequestDispatcher("/WEB-INF/views/accessDenied.jsp")
                        .forward(httpRequest, httpResponse);
             return;

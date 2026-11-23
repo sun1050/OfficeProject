@@ -16,8 +16,9 @@ import java.time.format.DateTimeParseException;
 import com.officeproject.reservation.ReservationCreateResult;
 import com.officeproject.reservation.ReservationDAO;
 
-//선택한 공간과 날짜로 예약 생성
+//선택한 공간과 날짜로 예약 생성 (roomId, useDate)
 
+//roomList.jsp의 ${pageContext.request.contextPath}/reservation/create
 @WebServlet("/reservation/create")
 public class ReservationCreateServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -30,7 +31,7 @@ public class ReservationCreateServlet extends HttpServlet {
 
 		HttpSession session = request.getSession(false);
 
-        int memberId = (Integer) session.getAttribute("loginMemberId");
+        int memberId = (Integer) session.getAttribute("loginMemberId"); //member테이블의 member_id(pk)
 
         String roomIdParameter = request.getParameter("roomId");
         String useDateParameter = request.getParameter("useDate");
@@ -58,6 +59,8 @@ public class ReservationCreateServlet extends HttpServlet {
         	//예약하는 reservationDAO로 예약생성
             ReservationCreateResult result=reservationDAO.createReservation(memberId, roomId, useDate);
 
+            //ReservationCreateResult.java(SUCCESS, ROOM_NOT_AVAILABLE, ALREADY_RESERVED, ERROR)
+            
             if (result == ReservationCreateResult.SUCCESS) {
             	
                 session.setAttribute("flashMessage", "공간 예약이 완료되었습니다.");
@@ -70,7 +73,7 @@ public class ReservationCreateServlet extends HttpServlet {
                 
             	session.setAttribute("flashMessage", "현재 예약할 수 없는 공간입니다.");
 
-            } else {
+            } else {  //ERROR
                 session.setAttribute("flashMessage", "예약 처리에 실패했습니다. 다시 시도해 주세요.");
             }
             

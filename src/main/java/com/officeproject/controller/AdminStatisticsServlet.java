@@ -19,8 +19,6 @@ import com.officeproject.reservation.RoomTypeReservationStat;
 
 //관리자가 시작일·종료일을 직접 선택해 날짜별 / 공간 유형별 예약 통계 조회
 //GET /admin/statistics?startDate=2026-10-01&endDate=2026-10-31
-
-
 @WebServlet("/admin/statistics")
 public class AdminStatisticsServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -90,11 +88,11 @@ public class AdminStatisticsServlet extends HttpServlet {
         }
 
         try {
-            List<DailyReservationStat> dailyStatistics =
-                    reservationDAO.findDailyStatistics(startDate, endDate);
+        	//useDate, reservationCount
+            List<DailyReservationStat> dailyStatistics = reservationDAO.findDailyStatistics(startDate, endDate);
 
-            List<RoomTypeReservationStat> roomTypeStatistics =
-                    reservationDAO.findRoomTypeStatistics(startDate, endDate);
+            //roomTypeId, typeName, reservationCount
+            List<RoomTypeReservationStat> roomTypeStatistics = reservationDAO.findRoomTypeStatistics(startDate, endDate);
 
             request.setAttribute("startDate", startDate);
             request.setAttribute("endDate", endDate);

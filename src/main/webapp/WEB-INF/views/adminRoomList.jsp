@@ -9,13 +9,13 @@
 	<title>공간 관리 | Office Mate</title>
 	
 	
-	<!--모든 페이지 적용 기본 스타일-->
+	<%--모든 페이지 적용 기본 스타일--%>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/common.css">
 
-    <!--헤더, 메뉴 등 레이아웃-->
+    <%--헤더, 메뉴 등 레이아웃--%>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/layout.css">
 
-    <!--메인 화면에서만 사용-->
+    <%--메인 화면에서만 사용--%>
     <link rel="stylesheet" href="${pageContext.request.contextPath}/resources/css/admin.css">
 </head>
 <body>
@@ -79,6 +79,8 @@
                     </thead>
 
                     <tbody>
+                    
+                    	<%-- rooms 객체 꺼내기 시작 --%>
                         <c:forEach var="room" items="${rooms}">
                             <tr>
                                 <td>
@@ -86,8 +88,10 @@
                                 </td>
 
                                 <td>
+                                <%-- <c:out value='${room.imagePath}': 현재 공간 객체의 이미지 경로를 읽어서 출력 --%>
                                     <c:choose>
                                         <c:when test="${not empty room.imagePath}">
+                                        
                                             <img class="admin-room-image"
                                                  src="${pageContext.request.contextPath}<c:out value='${room.imagePath}' />"
                                                  alt="<c:out value='${room.roomName}' /> 사진">
@@ -132,10 +136,9 @@
                                 </td>
 
                                 <td>
-                                    <%--
-                                        다음 단계에서 만들 AdminRoomStatusServlet이
-                                        POST /admin/room/status 요청을 처리한다.
-                                    --%>
+
+                                    <%-- rooms: roomId, roomName, typeName, maxCapacity, floorNo, status, imagePath --%>
+                                    <%-- AdminRoomStatusServlet.java로 갔다가  --%>
                                     <form method="post"
                                           action="${pageContext.request.contextPath}/admin/room/status"
                                           class="admin-room-status-form">

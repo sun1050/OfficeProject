@@ -13,7 +13,7 @@ import java.sql.SQLException;
 import com.officeproject.room.RoomDAO;
 
 //관리자가 공간의 운영 상태 변경  OUT_OF_SERVICE
-
+//adminRoomList.jsp에서 호출
 @WebServlet("/admin/room/status")
 public class AdminRoomStatusServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -41,7 +41,7 @@ public class AdminRoomStatusServlet extends HttpServlet {
         } catch (NumberFormatException e) {
             session.setAttribute("flashMessage", "잘못된 공간 번호입니다.");
 
-            response.sendRedirect(request.getContextPath() + "/admin/room");
+            response.sendRedirect(request.getContextPath() + "/admin/room");  //AdminRoomListServlet.java로 갔다가 adminRoomList.jsp 감
             return;
         }
 

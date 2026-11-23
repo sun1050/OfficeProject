@@ -15,16 +15,15 @@ import com.officeproject.util.DBConnection;
 
 public class ReservationDAO {
 	
-	//ReservationCreateResult.java의 
-	public ReservationCreateResult createReservation(
-			
-            int memberId,
-            int roomId,
-            LocalDate useDate
-            
-    ) throws SQLException {
+	//ReservationCreateResult.java(SUCCESS, ROOM_NOT_AVAILABLE, ALREADY_RESERVED, ERROR) 지정
+	//ReservationCreateServlet.java에서 사용
+	public ReservationCreateResult createReservation(int memberId,int roomId,LocalDate useDate) throws SQLException {
 
-		//예약 가능한가?
+		//UPDLOCK: 읽는 데이터(같은 대상,즉 조건이 완벽하게 같으면서 UPDLOCK도 있을 경우)에도 U 잠금을 잡음. 같은 대상에 다른 U 잠금,변경 잠금이 필요하면 기다림. 조건에 맞는 데이터가 없을 때 조회 조건에 맞는 새 행이 추가되는 건 못막음
+		//HOLDLOCK: 읽기까지는 잠금 안잡음. 검색 범위까지 보호. 조건에 맞는 데이터가 없더라도 그 자리에 새 행이 들어오는 것을 제어
+		//UPDLOCK, HOLDLOCK: HOLDLOCK의 범위 보호, UPDLOCK의 경쟁 요청 조절 기능을 함께 사용 >> 조건에 맞는 데이터가 있을 경우 UPDLOCK과 사실상 같은 잠금 효과가 남
+		
+		//방 확인-방 자체의 상태가 예약 가능한가?
         String roomCheckSql =
                 "SELECT 1 "
               + "FROM dbo.room r WITH (UPDLOCK, HOLDLOCK) "
@@ -34,7 +33,7 @@ public class ReservationDAO {
               + "  AND r.status = 'AVAILABLE' "
               + "  AND rt.is_active = 1";
         
-        //그 날짜에 이미 예약됐나?
+        //예약 확인-이미 있는 예약인지 확인
         String reservationCheckSql =
                 "SELECT 1 "
               + "FROM dbo.reservation WITH (UPDLOCK, HOLDLOCK) "
@@ -42,7 +41,7 @@ public class ReservationDAO {
               + "  AND use_date = ? "
               + "  AND is_canceled = 0";
 
-        //실제 예약
+        //예약 실행
         String insertSql =
                 "INSERT INTO dbo.reservation ("
               + "    member_id, "
@@ -51,19 +50,23 @@ public class ReservationDAO {
               + ") "
               + "VALUES (?, ?, ?)";
 
+        //try-with-resources: try 뒤 괄호 안에 닫을 자원 선언 >> conn.close() 자동호출
+        //try-with-resources가 예약 저장(conn.commit)까지 자동 확정해주는건 아님
         try (Connection conn = DBConnection.getConnection()) {
 
-            //autoCommit=false: 예약 가능 확인과 INSERT를 하나의 트랜잭션으로 묶음 > 트랜잭션을 직접 끝내야 함
+        	//autoCommit=false: 직접 conn.rollback(), conn.commit()사용
             conn.setAutoCommit(false);
 
             try {
-                //점검 중, 비활성 유형 공간은 예약못하게
+                //방 자체의 상태가 예약 가능한가?: 점검 중, 비활성 유형 공간 제외
+            	//try-with-resources: try 뒤 괄호 안에 닫을 자원 선언 >> pstmt.close() 자동호출
                 try (PreparedStatement pstmt = conn.prepareStatement(roomCheckSql)) {
                     pstmt.setInt(1, roomId);
                     
+                    //try-with-resources: try 뒤 괄호 안에 닫을 자원 선언 >> rs.close() 자동호출
                     try (ResultSet rs = pstmt.executeQuery()) {
-                        if (!rs.next()) {
-                            conn.rollback();
+                        if (!rs.next()) {  //다 점검, 비활성이거나 공간 자체가 없을 때
+                            conn.rollback();  //현재 트랜잭션 종료 -> 그 트랜잭션이 유지한 잠금 해제
                             return ReservationCreateResult.ROOM_NOT_AVAILABLE;
                         }
                     }
@@ -91,7 +94,7 @@ public class ReservationDAO {
                     pstmt.setInt(2, roomId);
                     pstmt.setDate(3, Date.valueOf(useDate));
 
-                    int result = pstmt.executeUpdate();
+                    int result = pstmt.executeUpdate();  //실제 예약을 추가하는 줄
 
                     if (result != 1) {
                         conn.rollback();
@@ -107,6 +110,7 @@ public class ReservationDAO {
             } catch (SQLException e) {
                 conn.rollback();
                 
+                //2601: UNIQUE 인덱스의 중복 값 / 2627: PRIMARY KEY 또는 UNIQUE 제약 위반
                 if (e.getErrorCode() == 2601 || e.getErrorCode() == 2627) {
                     return ReservationCreateResult.ALREADY_RESERVED;
                 }
@@ -120,9 +124,12 @@ public class ReservationDAO {
     }
 	
 	//로그인한 회원의 예약 이력을 조회, 취소된 예약도 함께 보여 주어 사용자가 자신의 이력을 확인할 수 있도록.
+	//MyReservation.java 객체들의 목록을 반환
+	//MyReservationServlet.java에서 사용
     public java.util.List<MyReservation> findByMemberId(int memberId)
             throws SQLException {
 
+    	//MyReservation.java - reservationId, roomName, typeName, floorNo, useDate, canceled, createdAt
         String sql =
                 "SELECT "
               + "    rv.reservation_id, "
@@ -139,9 +146,8 @@ public class ReservationDAO {
               + "    ON r.room_type_id = rt.room_type_id "
               + "WHERE rv.member_id = ? "
               + "ORDER BY rv.use_date DESC, rv.created_at DESC";
-
-        java.util.List<MyReservation> reservations =
-                new java.util.ArrayList<>();
+        
+        java.util.List<MyReservation> reservations = new java.util.ArrayList<>();
 
         try (
             Connection conn = DBConnection.getConnection();
@@ -167,8 +173,9 @@ public class ReservationDAO {
         return reservations;
     }
 	
-     //예약 취소.reservation_id만 조건으로 쓰면 다른 회원 예약도 취소할 위험이 있으니 member_id도 함께 WHERE 조건에 넣는다.
-     //is_canceled = 0인 유효 예약만 취소 가능하다.
+    //예약 취소.reservation_id만 조건으로 쓰면 다른 회원 예약도 취소할 위험이 있으니 member_id도 함께 WHERE 조건에 넣는다.
+    //is_canceled = 0인 유효 예약만 취소 가능하다.
+    //ReservationCancel.java에서 사용
     public boolean cancelReservation(int reservationId, int memberId)
             throws SQLException {
 
@@ -197,21 +204,22 @@ public class ReservationDAO {
     //관리자가 전체 예약을 조회
     //member, room, room_type 테이블을 JOIN > 예약자와 공간 정보를 한 번에 가져옴
     //useDate가 null이면 모든 날의 예약을, 값이 있으면 해당 이용일의 예약만 조회
+    //AdminReservationListServlet.java에서 사용
     public List<AdminReservation> findForAdmin(LocalDate useDate)
             throws SQLException {
 
         StringBuilder sql = new StringBuilder();
 
         sql.append("SELECT ");
-        sql.append("    rv.reservation_id, ");
-        sql.append("    m.member_name, ");
-        sql.append("    m.login_id, ");
-        sql.append("    r.room_name, ");
-        sql.append("    rt.type_name, ");
-        sql.append("    r.floor_no, ");
-        sql.append("    rv.use_date, ");
-        sql.append("    rv.is_canceled, ");
-        sql.append("    rv.created_at ");
+        sql.append(" rv.reservation_id, ");
+        sql.append(" m.member_name, ");
+        sql.append(" m.login_id, ");
+        sql.append(" r.room_name, ");
+        sql.append(" rt.type_name, ");
+        sql.append(" r.floor_no, ");
+        sql.append(" rv.use_date, ");
+        sql.append(" rv.is_canceled, ");
+        sql.append(" rv.created_at ");
         sql.append("FROM dbo.reservation rv ");
         sql.append("JOIN dbo.member m ");
         sql.append("    ON rv.member_id = m.member_id ");
@@ -227,6 +235,7 @@ public class ReservationDAO {
 
         sql.append("ORDER BY rv.use_date DESC, rv.created_at DESC");
 
+        //reservationId, memberName, loginId, roomName, typeName, floorNo, useDate, canceled, createdAt
         List<AdminReservation> reservations = new ArrayList<>();
 
         try (Connection conn = DBConnection.getConnection();
@@ -240,7 +249,9 @@ public class ReservationDAO {
             try (ResultSet rs = pstmt.executeQuery()) {
 
                 while (rs.next()) {
-                    AdminReservation reservation = new AdminReservation(
+                	//reservationId, memberName, loginId, roomName, typeName, floorNo, useDate, canceled, createdAt
+                    //AdminReservation reservation = new AdminReservation(
+                	reservations.add(new AdminReservation(
                             rs.getInt("reservation_id"),
                             rs.getString("member_name"),
                             rs.getString("login_id"),
@@ -250,10 +261,9 @@ public class ReservationDAO {
                             rs.getDate("use_date").toLocalDate(),
                             rs.getBoolean("is_canceled"),
                             rs.getTimestamp("created_at").toLocalDateTime()
-                    );
+                    ));
 
-                    //List<AdminReservation>: DTO
-                    reservations.add(reservation);
+                    //reservations.add(reservation);
                 }
             }
         }
@@ -281,8 +291,9 @@ public class ReservationDAO {
     }
     
     
-    //선택한 시작일~종료일 사이의 날짜별 유효 예약 건수 조회 > 차트에 사용
+    //날짜,예약건수 조회 > 차트에 사용
     //취소 예약(is_canceled = 1)은 통계에서 제외, GROUP BY에 꼭 use_date.
+    //AdminStatisticsServlet.java에서 호출
     public List<DailyReservationStat> findDailyStatistics(
             LocalDate startDate,
             LocalDate endDate) throws SQLException {
@@ -298,6 +309,7 @@ public class ReservationDAO {
                 + "GROUP BY rv.use_date "
                 + "ORDER BY rv.use_date ASC";
 
+        //useDate, reservationCount
         List<DailyReservationStat> statistics = new ArrayList<>();
 
         try (
@@ -320,8 +332,9 @@ public class ReservationDAO {
         return statistics;
     }
 
-    //선택한 시작일~종료일 사이의 공간 유형별 유효 예약 건수 조회
+    //선택한 시작일~종료일 사이의, 공간 유형별 유효 예약 건수 조회
     //reservation → room → room_type JOIN > 예약된 실제 공간이 어떤 유형인지 알아낸 뒤 유형별로 묶기
+	//AdminStatisticsServlet.java에서 호출
     public List<RoomTypeReservationStat> findRoomTypeStatistics(
             LocalDate startDate,
             LocalDate endDate) throws SQLException {
@@ -346,6 +359,7 @@ public class ReservationDAO {
                 + "    reservation_count DESC, "
                 + "    rt.type_name ASC";
 
+        //roomTypeId, typeName, reservationCount
         List<RoomTypeReservationStat> statistics = new ArrayList<>();
 
         try (
@@ -357,6 +371,7 @@ public class ReservationDAO {
 
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
+                	//roomTypeId, typeName, reservationCount
                     statistics.add(new RoomTypeReservationStat(
                             rs.getInt("room_type_id"),
                             rs.getString("type_name"),

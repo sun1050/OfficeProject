@@ -54,11 +54,12 @@
         <%-- 날짜를 선택해 GET /rooms?useDate=날짜 요청을 보낸다. --%>
         <form class="date-search-form"
               method="get"
-              action="${pageContext.request.contextPath}/rooms">
+              action="${pageContext.request.contextPath}/rooms">  <!-- RoomListServlet: @rooms-->
 
             <div>
-                <label for="useDate">이용 날짜</label>
+                <label for="useDate">이용 날짜</label> <!-- id="useDate" -->
 
+				<!-- RoomListServlet의 useDate, today -->
                 <input type="date"
                        id="useDate"
                        name="useDate"
@@ -98,9 +99,11 @@
                 </section>
             </c:when>
 
-            <c:otherwise>
+            <c:otherwise> <!-- 공간 카드 목록 생성 -->
                 <section class="room-grid">
+                	<!-- RoomListServlet의 rooms, useDate, today -->
                     <c:forEach var="room" items="${rooms}">
+                    
                         <article class="room-card">
 
                             <div class="room-image-box">
@@ -131,10 +134,13 @@
                                 --%>
                                 <c:choose>
                                     <c:when test="${not empty sessionScope.loginMemberId}">
+                                    	
+                                    	<!-- ReservationCreateServlet으로 POST (@WebServlet("/reservation/create")) -->
                                         <form method="post"
                                               action="${pageContext.request.contextPath}/reservation/create"
                                               class="room-reserve-form">
 
+											<!-- type="hidden": 화면에는 숨김. > 폼 제출 시(/reservation/create) 값을 전송하는 타입-->
                                             <input type="hidden"
                                                    name="roomId"
                                                    value="${room.roomId}">

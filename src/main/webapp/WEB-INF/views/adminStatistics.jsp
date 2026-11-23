@@ -49,6 +49,7 @@
         </div>
 
         <%-- GET 방식: URL에 startDate와 endDate가 남아 결과를 공유·새로고침할 수 있다. --%>
+        <!-- AdminStatisticsServlet.java로 이동 후 adminStatistics.jsp로 이동 -->
         <form method="get"
               action="${pageContext.request.contextPath}/admin/statistics"
               class="statistics-search-form">
@@ -88,9 +89,17 @@
             통계 값을 JavaScript 코드에 직접 이어 붙이지 않는다.
             HTML data-* 속성에 안전하게 출력한 뒤,
             아래 JavaScript가 DOM에서 값을 읽어 Chart.js에 전달한다.
+            
+            request로 받은 값:
+			dailyStatistics: useDate, reservationCount
+         	roomTypeStatistics: roomTypeId, typeName, reservationCount
+         	
+         	DOM 객체 생성
+         	
+         	dataset으로 읽으려고 HTML 표준의 data-이름 규칙에 맞춰 변수 생성(data-date, data-count, data-type-name, data-count)
+         	data-* 속성은 JS에서 읽을 때 문자열
         --%>
         <div id="statisticsData" hidden>
-
             <c:forEach var="dailyStat" items="${dailyStatistics}">
                 <span class="daily-stat-data"
                       data-date="<c:out value='${dailyStat.useDate}' />"
@@ -128,7 +137,7 @@
 
                     <c:otherwise>
                         <div class="chart-container">
-                            <canvas id="dailyReservationChart"></canvas>
+                            <canvas id="dailyReservationChart"></canvas> <!-- 그래프 그리기 -->
                         </div>
                     </c:otherwise>
                 </c:choose>
@@ -149,7 +158,7 @@
 
                     <c:otherwise>
                         <div class="chart-container">
-                            <canvas id="roomTypeReservationChart"></canvas>
+                            <canvas id="roomTypeReservationChart"></canvas>  <!-- 그래프 그리기 -->
                         </div>
                     </c:otherwise>
                 </c:choose>
@@ -165,16 +174,17 @@
                 <div class="table-scroll">
                     <table class="statistics-table">
                         <thead>
-                            <tr>
-                                <th>이용일</th>
+                            <tr> <!-- 행 -->
+                                <th>이용일</th> <!-- 열 중 타이틀 -->
                                 <th>예약 건수</th>
                             </tr>
                         </thead>
 
                         <tbody>
+                        	<!-- useDate, reservationCount -->
                             <c:forEach var="dailyStat" items="${dailyStatistics}">
                                 <tr>
-                                    <td>
+                                    <td> <!-- 열 -->
                                         <c:out value="${dailyStat.useDate}" />
                                     </td>
                                     <td>
@@ -196,6 +206,7 @@
                         </thead>
 
                         <tbody>
+                        <!-- roomTypeId, typeName, reservationCount -->
                             <c:forEach var="roomTypeStat"
                                        items="${roomTypeStatistics}">
                                 <tr>
@@ -214,8 +225,9 @@
             </div>
         </section>
     </main>
+    
 
-    <%-- Chart.js 외부 라이브러리. 인터넷 연결이 있어야 그래프가 표시된다. --%>
+    <%-- Chart.js CDN으로 불러오기 --%>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
@@ -224,30 +236,44 @@
          * 날짜·숫자 데이터를 JS 코드에 직접 문자열로 붙이지 않아
          * 따옴표·특수문자 문제를 줄인다.
          */
-        const dailyStatElements =
-                document.querySelectorAll(".daily-stat-data");
+         /*
+         dailyStatistics: useDate, reservationCount
+         roomTypeStatistics: roomTypeId, typeName, reservationCount
+         */
+         //선그래프 준비  //querySelectorAll: 조건에 맞는 요소를 모두 찾는 메서드. NodeList반환(JavaScript 배열X)
+         //현재 jsp 파일에서 daily-stat-data 클래스의 요소 모두 담기
+        const dailyStatElements = document.querySelectorAll(".daily-stat-data");
 
+    	//선그래프 labels
+    	//Array.from: 배열로 바꾸기 >>여기서는 NodeList를 배열로 바꾼 것.
+    	//.map: 배열의 각 항목에서 원하는 값을 만들어 새 배열 반환.  .dataset: data-* 요소 찾기(data-data, data-count)  .date: data-data
         const dailyLabels = Array.from(dailyStatElements)
                 .map((element) => element.dataset.date);
-
+		//선그래프 data
+		//문자열인 data-* 속성을 숫자로 변환
         const dailyCounts = Array.from(dailyStatElements)
                 .map((element) => Number(element.dataset.count));
 
-        const roomTypeStatElements =
-                document.querySelectorAll(".room-type-stat-data");
+		
+        //막대그래프 준비
+        const roomTypeStatElements = document.querySelectorAll(".room-type-stat-data");
 
+        //막대그래프 labels
         const roomTypeLabels = Array.from(roomTypeStatElements)
                 .map((element) => element.dataset.typeName);
 
+        //막대그래프 data
         const roomTypeCounts = Array.from(roomTypeStatElements)
                 .map((element) => Number(element.dataset.count));
 
+        
         /*
          * 일별 예약 건수 선 그래프
          */
-        const dailyChartCanvas =
-                document.getElementById("dailyReservationChart");
+        const dailyChartCanvas = document.getElementById("dailyReservationChart");
 
+        //dailyChartCanvas: <canvas id="dailyReservationChart"></canvas> 있나 확인
+        //typeof Chart !== "undefined": <script src="https://cdn.jsdelivr.net/npm/chart.js"... 있나 확인(라이브러리 사용 가능 여부)
         if (dailyChartCanvas && dailyLabels.length > 0
                 && typeof Chart !== "undefined") {
 
@@ -255,16 +281,17 @@
                 type: "line",
 
                 data: {
+                	//가로축
                     labels: dailyLabels,
 
                     datasets: [
                         {
                             label: "예약 건수",
-                            data: dailyCounts,
+                            data: dailyCounts,  //세로축
                             borderColor: "#2563eb",
                             backgroundColor: "rgba(37, 99, 235, 0.12)",
                             borderWidth: 2,
-                            tension: 0.25,
+                            tension: 0.25, //곡선
                             fill: true,
                             pointRadius: 4,
                             pointBackgroundColor: "#2563eb"
@@ -291,9 +318,9 @@
         /*
          * 공간 유형별 예약 건수 막대 그래프
          */
-        const roomTypeChartCanvas =
-                document.getElementById("roomTypeReservationChart");
+        const roomTypeChartCanvas = document.getElementById("roomTypeReservationChart");
 
+        //canvas 있나 확인 && 
         if (roomTypeChartCanvas && roomTypeLabels.length > 0
                 && typeof Chart !== "undefined") {
 
@@ -301,12 +328,12 @@
                 type: "bar",
 
                 data: {
-                    labels: roomTypeLabels,
+                    labels: roomTypeLabels,  //가로축
 
                     datasets: [
                         {
-                            label: "예약 건수",
-                            data: roomTypeCounts,
+                            label: "예약 건수",  //막대 설명
+                            data: roomTypeCounts,  //세로축
                             backgroundColor: [
                                 "#2563eb",
                                 "#38bdf8",
@@ -316,6 +343,7 @@
                                 "#ef4444"
                             ],
                             borderRadius: 6
+                            
                         }
                     ]
                 },

@@ -13,7 +13,7 @@ import java.sql.SQLException;
 import com.officeproject.reservation.ReservationDAO;
 
 //로그인한 회원 본인의 예약만 취소한다.
-
+//myReservationList.jsp에서 사용 > reservation.reservationId 보냄
 @WebServlet("/reservation/cancel")
 public class ReservationCancelServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;

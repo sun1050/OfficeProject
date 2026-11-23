@@ -67,7 +67,7 @@ public class MemberDAO {
 
 	
 	//회원가입
-	//같은 패키지의 JoinResult.java(enum)
+	//같은 패키지의 JoinResult.java(enum) SUCCESS, DUPLICATE_LOGIN_ID, ERROR사용해서 인서트 결과 따라 리턴해줌
 	public JoinResult createMember(
 			
 	        String loginId,

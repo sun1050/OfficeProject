@@ -27,6 +27,7 @@ public class LoginAuthorizationFilter extends HttpFilter implements Filter {
 
         HttpSession session = httpRequest.getSession(false);
 
+        //로그인 안한 상태에서 URL 수정으로 /reservation/my, /reservation/create, /reservation/cancel 시도할 때
         if (session==null || session.getAttribute("loginMemberId")==null) {
             httpResponse.sendRedirect(httpRequest.getContextPath() + "/login");
             return;

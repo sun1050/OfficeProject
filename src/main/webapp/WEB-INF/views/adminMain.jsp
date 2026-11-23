@@ -52,6 +52,7 @@
 
         <section class="admin-dashboard-grid">
 
+			<!-- AdminReservationListServlet.java에서 adminReservationList.jsp로 이동시킴-->
             <a class="admin-dashboard-card"
                href="${pageContext.request.contextPath}/admin/reservation">
 
@@ -64,6 +65,7 @@
                 <span class="admin-card-link">예약 현황 보기 →</span>
             </a>
 
+			<!-- AdminRoomListServlet.java에서 adminRoomList.jsp로 이동시킴 -->
             <a class="admin-dashboard-card"
                href="${pageContext.request.contextPath}/admin/room">
 
@@ -76,6 +78,7 @@
                 <span class="admin-card-link">공간 목록 보기 →</span>
             </a>
             
+            <!-- AdminStatisticsServlet.java에서 adminStatistics.jsp로 이동시킴 -->
             <a class="admin-dashboard-card"
                href="${pageContext.request.contextPath}/admin/statistics">
 

@@ -55,6 +55,8 @@
 
             <c:otherwise>
                 <section class="reservation-list">
+                	<!-- MyreservationServlet.java에서 보낸 reservations -->
+                	<!-- reservationId, roomName, typeName, floorNo, useDate, canceled, createdAt -->
                     <c:forEach var="reservation" items="${reservations}">
                         <article class="reservation-card">
 

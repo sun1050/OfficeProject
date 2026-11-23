@@ -38,9 +38,11 @@ public class AdminRoomListServlet extends HttpServlet {
         }
 
         try {
+        	//roomDAO.java
             List<AdminRoom> rooms = roomDAO.findAllForAdmin();
 
             //adminRoomList.jsp에서 ${rooms}로 사용할 값
+            //roomId, roomName, typeName, maxCapacity, floorNo, status, imagePath
             request.setAttribute("rooms", rooms);
 
             request.getRequestDispatcher("/WEB-INF/views/adminRoomList.jsp").forward(request, response);

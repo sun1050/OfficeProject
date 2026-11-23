@@ -9,6 +9,8 @@ import jakarta.servlet.http.HttpSession;
 
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import com.officeproject.reservation.MyReservation;
@@ -33,6 +35,7 @@ public class MyReservationServlet extends HttpServlet {
         //예약 취소 후 Redirect되어 온 메시지 보여줌
         Object flashMessage = session.getAttribute("flashMessage");
 
+        //flashMessage가 문자열이 들어있으면
         if (flashMessage instanceof String) {
             request.setAttribute("flashMessage", flashMessage);
             session.removeAttribute("flashMessage");
@@ -40,7 +43,7 @@ public class MyReservationServlet extends HttpServlet {
 
         try {
         	
-        	//MyReservation.java - JavaBean객체
+        	//MyReservation.java - JavaBean객체 reservationId, roomName, typeName, floorNo, useDate, canceled, createdAt
             List<MyReservation> reservations =reservationDAO.findByMemberId(memberId);
 
             request.setAttribute("reservations", reservations);
