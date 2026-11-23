@@ -48,6 +48,7 @@
         </div>
 
         <%-- GET 방식 검색: URL에 ?useDate=2026-10-16 형태로 날짜가 전달된다. --%>
+        <!-- AdminReservationListServlet.java에서 adminReservationList.jsp로 이동시킴-->
         <form method="get"
               action="${pageContext.request.contextPath}/admin/reservation"
               class="admin-search-form">
@@ -117,6 +118,8 @@
                             </thead>
 
                             <tbody>
+                            	<!-- AdminReservation.java(reservations): reservationId, memberName, loginId, roomName, typeName, floorNo, useDate, canceled, createdAt -->
+                            	<!-- reservationDAO.findForAdmin 결과. -->
                                 <c:forEach var="reservation"
                                            items="${reservations}">
                                     <tr>

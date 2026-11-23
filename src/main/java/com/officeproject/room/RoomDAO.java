@@ -16,6 +16,7 @@ import com.officeproject.util.DBConnection;
 public class RoomDAO {
 
     //선택한 날짜에 예약 가능한 공간 조회
+	//RoomListServlet.java 에서 사용
     //NOT EXISTS: 해당 room_id와 use_date에 유효한 예약(is_canceled = 0)이 하나라도 존재하면 그 공간은 결과에서 제외한다.
     public List<Room> findAvailableRooms(LocalDate useDate)
             throws SQLException {
@@ -49,11 +50,15 @@ public class RoomDAO {
             Connection conn = DBConnection.getConnection();
             PreparedStatement pstmt = conn.prepareStatement(sql)
         ) {
+        	//useDate는 LocalDate
+        	//Date(java.sql.Date)는 JDBC로 DB의 DATE 값을 주고받을 때 사용하는 타입(use_date date NOT NULL,)
             pstmt.setDate(1, Date.valueOf(useDate));
 
+            //executeQuery는 조회.
             try (ResultSet rs = pstmt.executeQuery()) {
+            	//
                 while (rs.next()) {
-                	//Room.java JavaBean 객체
+                	//Room.java JavaBean 객체 roomId, roomName, imagePath, floorNo, typeName, maxCapacity
                     rooms.add(new Room(
                     	rs.getInt("room_id"),
                         rs.getString("room_name"),
@@ -70,6 +75,7 @@ public class RoomDAO {
     }
     
     //관리자가 전체 공간 조회
+    //AdminRoomListServlet.java에 전체 공간 객체들 전달
     //일반 사용자용 findAvailableRooms()와 달리 점검 중인 공간(OUT_OF_SERVICE)도 함께 조회
     public List<AdminRoom> findAllForAdmin()
             throws SQLException {
@@ -97,6 +103,7 @@ public class RoomDAO {
             try (ResultSet rs = pstmt.executeQuery()) {
                 while (rs.next()) {
 
+                	//roomId, roomName, typeName, maxCapacity, floorNo, status, imagePath
                     rooms.add(new AdminRoom(
                             rs.getInt("room_id"),
                             rs.getString("room_name"),
@@ -114,18 +121,14 @@ public class RoomDAO {
     }
 
     //관리자가 공간 운영 상태 변경
-     /*
-     * AVAILABLE: 예약 가능한 정상 운영 공간
-     * OUT_OF_SERVICE: 점검·고장 등으로 예약 불가 공간
-     */
+    //AdminRoomStatusServlet.java에서 호출
     public boolean updateRoomStatus(
             int roomId,
             String status) throws SQLException {
 
         //Servlet뿐 아니라 DAO에서도 허용 상태를 한 번 더 검증한다.-잘못된 문자열이 DB까지 전달되는 것을 막는 방어 코드
-        
-        if (!"AVAILABLE".equals(status)
-                && !"OUT_OF_SERVICE".equals(status)) {
+    	//AVAILABLE도 아니고 OUT_OF_SERVICE도 아닌거 쳐내기
+        if (!"AVAILABLE".equals(status) && !"OUT_OF_SERVICE".equals(status)) {
             return false;
         }
 

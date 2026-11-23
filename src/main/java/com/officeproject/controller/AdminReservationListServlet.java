@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeParseException;
 import java.util.List;
 
@@ -18,6 +19,7 @@ import com.officeproject.reservation.ReservationDAO;
 
 //관리자 전체 예약 조회 화면 담당
 // /admin/* 주소이므로 AdminAuthorizationFilter가 먼저 실행되어 관리자(ADMIN)만 이 Servlet에 접근 가능
+//adminMain.jsp에서 옴
 @WebServlet("/admin/reservation")
 public class AdminReservationListServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
@@ -38,7 +40,8 @@ public class AdminReservationListServlet extends HttpServlet {
                 session.removeAttribute("flashMessage");  //JSP로 전달한 즉시 세션에서는 제거
             }
         }
-		//검색창의 useDate 값을 받는데 아무 날짜도 입력하지 않으면 null > DAO는 전체 예약을 조회
+        
+       //검색창의 useDate 값을 받는데 아무 날짜도 입력하지 않으면 null >> DAO는 전체 예약을 조회
        String useDateParam = request.getParameter("useDate");
        LocalDate useDate = null;
 
@@ -57,7 +60,9 @@ public class AdminReservationListServlet extends HttpServlet {
 
        try {
     	   //AdminReservation.java: 관리자가 전체 예약 목록을 조회할 때 사용하는 데이터 객체(DTO)
-           List<AdminReservation> reservations=reservationDAO.findForAdmin(useDate);
+    	   //> reservationId, memberName, loginId, roomName, typeName, floorNo, useDate, canceled, createdAt
+    	   //AdminReservationListServlet.java에서
+           List<AdminReservation> reservations=reservationDAO.findForAdmin(useDate);  //useDate가 null이거나 특정 날짜
 
            //JSP의 ${reservations}와 ${useDate}에서 사용할 값
            request.setAttribute("reservations", reservations);
@@ -73,8 +78,6 @@ public class AdminReservationListServlet extends HttpServlet {
                    e
            );
        }
-		
-		
 	}
 
 }

@@ -25,14 +25,16 @@ public class LoginServlet extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	private final MemberDAO memberDAO = new MemberDAO();
-       
+    
+	//main.jsp에서 사용 (<a href="${pageContext.request.contextPath}/login">)
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-		//회원가입 안내
+		//회원가입 안내. JoinServlet에서 회원가입 성공시 request.getContextPath()+"/login?joined=1"로 Redirect함
 		if ("1".equals(request.getParameter("joined"))) {
 		    request.setAttribute("successMessage", "회원가입이 완료되었습니다. 로그인해 주세요!");
 		}
+		
 		//login.jsp로 화면 전달
 		request.getRequestDispatcher("/WEB-INF/views/login.jsp").forward(request, response);
 	}
@@ -49,6 +51,7 @@ public class LoginServlet extends HttpServlet {
         //로그인 실패 시 입력했던 ID만 다시 보여줌, 비밀번호는X
         request.setAttribute("loginId", loginId);
 
+        
         if (loginId==null || loginId.isBlank() || password==null || password.isBlank()){
 
             request.setAttribute("errorMessage", "아이디와 비밀번호를 모두 입력해 주세요.");
@@ -57,8 +60,11 @@ public class LoginServlet extends HttpServlet {
         }
 
         try {
+        	//Member는 DTO(memberId, loginId, passwordHash, memberName, role)
+        	//findByLoginId: MemberDAO의 로그인용 회원 조회. 찾으면 해당 아이디로 Member 객체로 돌려줌 없으면 null 돌려줌
             Member member = memberDAO.findByLoginId(loginId.trim());
 
+            //
             //DB의 BCrypt 해시와 사용자입력 평문 비밀번호 비교>BCrypt.checkpw()(salt 포함한 해시값)
             if (member==null || !BCrypt.checkpw(password, member.getPasswordHash())){
                 request.setAttribute("errorMessage", "아이디 또는 비밀번호가 올바르지 않습니다.");
@@ -80,7 +86,7 @@ public class LoginServlet extends HttpServlet {
             session.setAttribute("loginMemberName", member.getMemberName());
             session.setAttribute("loginMemberRole", member.getRole());
 
-            //30분 동안 요청 없으면 세션 만료. 초단위
+            //30분 동안 요청 없으면 세션 만료. 초단위 >>다음 요청부처 로그인 안한걸로 처리됨
             session.setMaxInactiveInterval(30*60);
 
             response.sendRedirect(request.getContextPath()+"/main");

@@ -27,6 +27,12 @@
 
             <nav class="menu">
             
+            	<!--
+            	LoginServlet.java:
+            	session.setAttribute("loginMemberId", member.getMemberId());
+            	session.setAttribute("loginMemberName", member.getMemberName());
+            	session.setAttribute("loginMemberRole", member.getRole()); 
+            	-->
                 <%-- 로그인 여부에 따라 메뉴를 다르게 표시한다. --%>
                 <c:choose>
                     <c:when test="${not empty sessionScope.loginMemberId}">
@@ -40,6 +46,7 @@
 						</a>
 
                         <%-- 관리자에게만 관리자 메뉴를 보여 준다. --%>
+                        <!-- AdminMainServlet.java(@WebServlet)에서 adminMain.jsp로 이동시킴 -->
                         <c:if test="${sessionScope.loginMemberRole eq 'ADMIN'}">
                             <a href="${pageContext.request.contextPath}/admin">관리자</a>
                         </c:if>
@@ -50,10 +57,12 @@
                     </c:when>
 
                     <c:otherwise>
+                    	<!-- href:GET요청.  -->
                         <a href="${pageContext.request.contextPath}/login">
                             로그인
                         </a>
 
+						<!-- JoinServlet.java로 이동. (@WebServlet("/join")) -->
                         <a href="${pageContext.request.contextPath}/join">
                             회원가입
                         </a>
@@ -73,6 +82,7 @@
                     예약 가능한 공유오피스 공간을 확인하세요.
                 </p>
 
+				<!-- RoomListServlet.java의 @WebServlet("/rooms") -->
                 <a class="button button-white"
                    href="${pageContext.request.contextPath}/rooms">
                     공간 조회하기

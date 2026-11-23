@@ -7,6 +7,7 @@ public class Member {
     private final String memberName;
     private final String role;
     
+    //created_at은 DB에서 자동생성
     public Member(int memberId, String loginId, String passwordHash, String memberName, String role) {
     	this.memberId = memberId;
     	this.loginId = loginId;

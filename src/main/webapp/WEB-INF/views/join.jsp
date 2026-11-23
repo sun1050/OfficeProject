@@ -45,9 +45,21 @@
                 </p>
             </c:if>
 
+			<!--
+			method="post":	입력값을 HTTP 요청 본문에 담아서 전송 
+			action="…/join": 폼을 제출할 서버 주소
+			${pageContext.request.contextPath}:	앱의 배포 경로. /OfficeProject
+			${pageContext.request.contextPath}/join > JoinServlet.java로 감(@WebServlet(/join)))
+			-->
             <form method="post"
                   action="${pageContext.request.contextPath}/join">
 
+				<!--
+				id="loginId" : label for="loginId"과 맞춰짐. HTML에서 이 입력칸을 식별하는 이름
+				name="loginId" : JoinServlet.java의 getParameter()에 사용. 입력값을 서버에 전송할 때 붙이는 이름
+				value="<c:out value='${loginId}'/>" : JoinServlet.java의 setAttribute()에 사용. 받아오는 값
+				-->
+				<!--  -->
                 <div class="form-group">
                     <label for="loginId">아이디</label>
                     <input type="text"
